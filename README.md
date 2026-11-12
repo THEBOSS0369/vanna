@@ -39,6 +39,18 @@ https://github.com/user-attachments/assets/476cd421-d0b0-46af-8b29-0f40c73d6d83
 
 [Configure](https://vanna.ai/docs/configure)
 
+### Run the Local Research Demo
+
+The repository includes a real SQLite research dataset and a streaming data-analysis interface. Configure one real LLM provider, then start the complete local stack:
+
+```bash
+cp .env.example .env
+# Add OPENAI_API_KEY or ANTHROPIC_API_KEY to .env
+./scripts/start_research_demo.sh
+```
+
+Open http://localhost:8000 after startup. The assistant queries `data/Chinook.sqlite` through the SQL tool and can generate Plotly visualizations from returned data. The default server never falls back to mock responses; mock examples remain available only when explicitly selected with `--example`.
+
 ### Web Component
 
 ```html

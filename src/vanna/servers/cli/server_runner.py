@@ -28,6 +28,7 @@ class ExampleAgentLoader:
             "email_auth_example": "Email-based authentication demonstration (mock LLM)",
             "claude_sqlite_example": "Claude agent with SQLite database querying capabilities",
             "mock_sqlite_example": "Mock agent with SQLite database demonstration",
+            "research_sqlite_example": "Real LLM research assistant over the Chinook SQLite dataset",
         }
 
     @staticmethod
@@ -150,20 +151,14 @@ def main(
             click.echo(f"Error: {e}", err=True)
             return
     else:
-        # Fallback to basic agent
+        # The default is the real data-backed research agent.
         try:
-            from ...agents import create_basic_agent
-            from ...integrations.mock import MockLlmService
-
-            llm_service = MockLlmService(
-                response_content="Hello! I'm a Vanna Agents demo server. How can I help you?"
-            )
-            agent = create_basic_agent(llm_service)
+            agent = ExampleAgentLoader.load_example_agent("research_sqlite_example")
             click.echo(
-                "✓ Using basic demo agent (use --example to specify different agent)"
+                "✓ Using research agent with real SQLite data and configured LLM provider"
             )
-        except ImportError as e:
-            click.echo(f"Error: Could not create basic agent: {e}", err=True)
+        except (ImportError, ValueError) as e:
+            click.echo(f"Error: Could not create research agent: {e}", err=True)
             return
 
     from ..flask.app import VannaFlaskServer

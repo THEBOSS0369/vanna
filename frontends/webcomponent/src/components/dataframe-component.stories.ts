@@ -66,6 +66,7 @@ const ensureRichComponentStyles = () => {
   document.head.appendChild(style);
 };
 
+
 const createContainer = () => {
   ensureTokenStyles();
   ensureRichComponentStyles();

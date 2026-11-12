@@ -16,10 +16,18 @@ import asyncio
 from vanna import (
     AgentConfig,
     Agent,
-    MemoryConversationStore,
     MockLlmService,
-    User,
 )
+from vanna.core.registry import ToolRegistry
+from vanna.core.user import RequestContext, User, UserResolver
+from vanna.integrations.local.agent_memory import DemoAgentMemory
+
+
+class DemoUserResolver(UserResolver):
+    """Resolve every local demo request to a stable development user."""
+
+    async def resolve_user(self, request_context: RequestContext) -> User:
+        return User(id="local-user", username="local-user", email="local@example.com")
 
 
 def create_demo_agent() -> Agent:
@@ -34,6 +42,9 @@ def create_demo_agent() -> Agent:
 
     return Agent(
         llm_service=llm_service,
+        tool_registry=ToolRegistry(),
+        user_resolver=DemoUserResolver(),
+        agent_memory=DemoAgentMemory(),
         config=AgentConfig(
             stream_responses=True,  # Enable streaming for better server experience
             include_thinking_indicators=True,
@@ -48,10 +59,6 @@ async def main() -> None:
     agent = create_demo_agent()
 
     # Create a test user
-    user = User(
-        id="user123", username="testuser", email="test@example.com", permissions=[]
-    )
-
     # Start a conversation
     conversation_id = "conversation123"
     user_message = "Hello! Can you introduce yourself?"
@@ -61,7 +68,9 @@ async def main() -> None:
 
     # Send message and collect response
     async for component in agent.send_message(
-        user=user, message=user_message, conversation_id=conversation_id
+        request_context=RequestContext(cookies={}, headers={}),
+        message=user_message,
+        conversation_id=conversation_id,
     ):
         if hasattr(component, "content"):
             print(component.content, end="")
